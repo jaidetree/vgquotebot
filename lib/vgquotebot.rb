@@ -10,3 +10,19 @@ open("https://raw.githubusercontent.com/MrFwibbles/VGQuotes/master/quotes.yml") 
   puts thing.inspect
 end
 
+# Our main bot app logic: Quotosai the Quote Slayer
+class VGQuoteBot
+end
+
+# Responsible for dealing with files and such nonsense.
+class FileCabinet
+end
+
+# Responsible for handling our scheduling
+class Scheduler
+end
+
+# Our tweet mechanism
+# Uses chatterbot
+class Tweet
+end
