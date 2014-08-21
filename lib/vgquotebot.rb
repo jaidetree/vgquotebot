@@ -11,14 +11,14 @@ require 'open-uri' # Open URLs and read their contents.
 
 # Our main bot app logic: Quotosai the Quote Slayer
 class VGQuoteBot
-    @config = {}
 
     def initialize(config)
-        @config = @config.merge(config)
+        @app_config = {}
+        @app_config = @app_config.merge(config)
     end
 
     def main
-        clock = Scheduler.new @config[:schedule] do |time| 
+        clock = Scheduler.new @app_config[:schedule] do |time| 
             quote = get_quote
             tweet quote
         end
@@ -30,7 +30,7 @@ class VGQuoteBot
     end
 
     def get_quote
-        filer = Filer.new @config[:url]
+        filer = Filer.new @app_config[:url]
         processor = QuotesProcessor.new(filer.get_contents())
         quotes = processor.get('quotes')
         quote = new QuoteSelector.new(quotes).quote()
@@ -51,8 +51,6 @@ end
 
 # Responsible for dealing with files and such nonsense.
 class Filer
-    @url = ""
-
     def initialize(url)
         @url = url
     end
@@ -71,15 +69,12 @@ end
 
 # Responsible for parsing the textfile into a Hash or hash like object.
 class QuotesProcessor
-    @processor = nil
-    @result = nil
-
     def initialize(content)
         process(content)
     end
 
     def process(content)
-        @processor = YAML.load(contnet)
+        @processor = YAML.load(content)
     end
 
     def get(key)
@@ -90,8 +85,6 @@ end
 # Responsible for selecting a quote and passing it forward
 
 class QuoteSelector
-    @selected_quote = nil
-
     def initialize(quotes)
         selectFrom(quotes)
     end
@@ -109,9 +102,6 @@ end
 
 # Responsible for handling our scheduling
 class Scheduler
-    @schedule = []
-    @event = nil
-
     def initialize(times, &block)
         @schedule = times
         @event = block
@@ -143,8 +133,6 @@ end
 # Represents the formatter to take our data and translate it into a tweet
 class TweetMessage
     @@format = '"%s" - %s'
-    @text = ""
-    @source = ""
 
     def initialize(quote)
         @text = quote['text']
