@@ -153,7 +153,7 @@ class TweetMessage
     end
 end
 
-# Lets run this thing!
+# Let's run this thing!
 
 bot = VGQuoteBot.new {
     :url => "https://raw.githubusercontent.com/MrFwibbles/VGQuotes/master/quotes.yml",
