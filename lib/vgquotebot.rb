@@ -18,9 +18,7 @@ class VGQuoteBot
     end
 
     def main
-        clock = Scheduler.new @config[:schedule], do |time| 
-                    tweet 
-                end
+        clock = Scheduler.new @config[:schedule], { |time| tweet }
 
         loop do
             clock.tick
@@ -96,7 +94,7 @@ class QuoteSelector
     end
 
     def selectFrom(quotes)
-        idx = Random.new(quotes.length)
+        idx = Random.new quotes.length
         @selected_quote = quotes[idx]
     end
 
@@ -135,7 +133,7 @@ end
 class Tweet
     # message should come in as a TweetMessage
     def initialize(message)
-        tweet message
+        tweet message.to_s
     end
 end
 
@@ -157,13 +155,14 @@ end
 
 # Lets run this thing!
 
-bot = VGQuoteBot.new({
+bot = VGQuoteBot.new {
     :url => "https://raw.githubusercontent.com/MrFwibbles/VGQuotes/master/quotes.yml",
     :schedule => [
         '10:00am',
-        '4:00pm',
+        '04:00pm',
         '10:00pm',
     ]
-})
+}
 
+# bot.main # Run this mutha!
 bot.test
