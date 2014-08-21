@@ -18,7 +18,10 @@ class VGQuoteBot
     end
 
     def main
-        clock = Scheduler.new @config[:schedule], { |time| tweet }
+        clock = Scheduler.new @config[:schedule] do |time| 
+            quote = get_quote
+            tweet quote
+        end
 
         loop do
             clock.tick
@@ -114,7 +117,7 @@ class Scheduler
         @event = block
     end
 
-    def tick:
+    def tick
         current_time = Time.now.gmtime.strftime "%I:%M%P"
         check(current_time, @event)
     end
@@ -155,14 +158,14 @@ end
 
 # Let's run this thing!
 
-bot = VGQuoteBot.new {
-    :url => "https://raw.githubusercontent.com/MrFwibbles/VGQuotes/master/quotes.yml",
-    :schedule => [
+bot = VGQuoteBot.new({
+    url: 'https://raw.githubusercontent.com/MrFwibbles/VGQuotes/master/quotes.yml',
+    schedule: [
         '10:00am',
         '04:00pm',
         '10:00pm',
     ]
-}
+})
 
 # bot.main # Run this mutha!
 bot.test
