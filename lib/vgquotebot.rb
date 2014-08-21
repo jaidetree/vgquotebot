@@ -1,4 +1,4 @@
-require 'chatterbot/dsl'
+require 'twitter' # You know...for tweeting
 require 'yaml' # Used to parse the hosted yml
 require 'open-uri' # Open URLs and read their contents.
 
@@ -125,9 +125,28 @@ end
 # Our tweet mechanism
 # Uses chatterbot
 class Tweet
+    @@client = nil
     # message should come in as a TweetMessage
     def initialize(message)
+        if @@client.nil?
+            create_client
+        end
         tweet message.to_s
+    end
+
+    def tweet(message)
+        @@client.update message
+    end
+
+    def create_client
+        config_file = File.basename(__FILE__).replace('.rb', '.yml')
+        config = YAML.load_file(config_file)
+        @@client = Twitter::Streaming::Client.new do |config|
+            config.consumer_key        = config[:consumer_secret]
+            config.consumer_secret     = config[:consumer_key]
+            config.access_token        = config[:access_token]
+            config.access_token_secret = config[:access_token_secret]
+        end
     end
 end
 
