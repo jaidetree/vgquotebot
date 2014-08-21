@@ -25,6 +25,7 @@ class VGQuoteBot
 
         loop do
             clock.tick
+            update_config
             sleep 60
         end
     end
@@ -33,7 +34,7 @@ class VGQuoteBot
         filer = Filer.new @app_config[:url]
         processor = QuotesProcessor.new(filer.get_contents())
         quotes = processor.get('quotes')
-        quote = new QuoteSelector.new(quotes).quote()
+        quote = QuoteSelector.new(quotes).quote
         return quote
     end
 
@@ -90,7 +91,7 @@ class QuoteSelector
     end
 
     def selectFrom(quotes)
-        idx = Random.new quotes.length
+        idx = Random.rand quotes.length
         @selected_quote = quotes[idx]
     end
 
