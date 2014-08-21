@@ -39,7 +39,7 @@ class VGQuoteBot
     end
 
     def tweet(quote)
-        Tweet.new TweetMessage.new(quote)
+        Tweet.new quote
     end
 
     # Just run once and forego the scheduler.
@@ -127,14 +127,15 @@ end
 class Tweet
     @@client = nil
     # message should come in as a TweetMessage
-    def initialize(message)
+    def initialize(quote)
         if @@client.nil?
             create_client
         end
-        tweet message.to_s
+        tweet TweetMessage.new quote
     end
 
     def tweet(message)
+        message = message.to_s
         puts 'Tweeting:' + message
         @@client.update message
     end
