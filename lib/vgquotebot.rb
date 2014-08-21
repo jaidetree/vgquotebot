@@ -135,17 +135,18 @@ class Tweet
     end
 
     def tweet(message)
+        puts 'Tweeting:' + message
         @@client.update message
     end
 
     def create_client
-        config_file = File.basename(__FILE__).replace('.rb', '.yml')
-        config = YAML.load_file(config_file)
-        @@client = Twitter::Streaming::Client.new do |config|
-            config.consumer_key        = config[:consumer_secret]
-            config.consumer_secret     = config[:consumer_key]
-            config.access_token        = config[:access_token]
-            config.access_token_secret = config[:access_token_secret]
+        config_file = File.basename(__FILE__).sub('.rb', '.yml')
+        settings = YAML.load_file(config_file)
+        @@client = Twitter::REST::Client.new do |config|
+            config.consumer_key        = settings[:consumer_secret]
+            config.consumer_secret     = settings[:consumer_key]
+            config.access_token        = settings[:access_token]
+            config.access_token_secret = settings[:access_token_secret]
         end
     end
 end
@@ -160,7 +161,7 @@ class TweetMessage
     end
 
     def to_s
-        return sprintf @@format, @source, @source
+        return sprintf @@format, @text, @source
     end
 end
 
