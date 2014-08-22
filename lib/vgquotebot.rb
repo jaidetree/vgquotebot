@@ -25,7 +25,6 @@ class VGQuoteBot
 
         loop do
             clock.tick
-            update_config
             sleep 60
         end
     end
