@@ -15,6 +15,8 @@ class VGQuoteBot
     def initialize(config)
         @app_config = {}
         @app_config = @app_config.merge(config)
+        @filer = Filer.new @app_config[:url]
+
     end
 
     def main
@@ -30,8 +32,7 @@ class VGQuoteBot
     end
 
     def get_quote
-        filer = Filer.new @app_config[:url]
-        processor = QuotesProcessor.new(filer.get_contents())
+        processor = QuotesProcessor.new(@filer.get_contents())
         quotes = processor.get('quotes')
         quote = QuoteSelector.new(quotes).quote
         return quote
@@ -57,12 +58,10 @@ class Filer
 
     # Read the URL and return the contents
     def get_contents
-        text = ""
-
+      text = ""
         open(@url) do |f|
             text = f.read
         end
-
         return text
     end
 end
@@ -109,13 +108,13 @@ class Scheduler
 
     def tick
         current_time = Time.now.gmtime.strftime "%I:%M%P"
-        check(current_time, @event)
+        check(current_time)
     end
 
-    def check(current_time, &block)
+    def check(current_time)
         @schedule.each do |event_time|
-            if time.strftime "%I:%M%P" == event_time
-                block.call time
+            if current_time == event_time
+                @event.call current_time
             end
         end
     end
@@ -128,7 +127,7 @@ class Tweet
     # message should come in as a TweetMessage
     def initialize(quote)
         if @@client.nil?
-            create_client
+            # create_client
         end
         tweet TweetMessage.new quote
     end
@@ -136,7 +135,8 @@ class Tweet
     def tweet(message)
         message = message.to_s
         puts 'Tweeting:' + message
-        @@client.update message
+        # This is what actually tweets but not needed for debugging memory leak.
+        # @@client.update message 
     end
 
     def create_client
@@ -170,11 +170,19 @@ end
 bot = VGQuoteBot.new({
     url: 'https://raw.githubusercontent.com/MrFwibbles/VGQuotes/master/quotes.yml',
     schedule: [
+        '10:11pm',
+        '10:15pm',
         '10:00am',
         '04:00pm',
         '10:00pm',
     ]
 })
 
-# bot.main # Run this mutha!
-bot.test
+ARGV.each do|a| 
+  if a == "--test"
+    bot.test
+    exit
+  end
+end 
+
+bot.main
