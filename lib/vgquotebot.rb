@@ -171,10 +171,19 @@ class TwitterClient
 
   def create_client
     config_file = File.basename(__FILE__).sub('.rb', '.yml')
-    settings = YAML.load_file(config_file)
+    if File.exists?('./' + config_file)
+      settings = YAML.load_file(config_file)
+    else
+      settings = {
+        :consumer_secret => ENV['CONSUMER_SECRET'],
+        :consumer_key => ENV['CONSUMER_KEY'],
+        :access_token => ENV['ACCESS_TOKEN'],
+        :access_token_secret => ENV['ACCESS_TOKEN_SECRET']
+      }
+    end
     @@client = Twitter::REST::Client.new do |config|
-      config.consumer_key        = settings[:consumer_secret]
-      config.consumer_secret     = settings[:consumer_key]
+      config.consumer_key        = settings[:consumer_key]
+      config.consumer_secret     = settings[:consumer_secret]
       config.access_token        = settings[:access_token]
       config.access_token_secret = settings[:access_token_secret]
     end
