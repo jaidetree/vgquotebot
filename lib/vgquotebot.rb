@@ -200,8 +200,8 @@ end
 bot = VGQuoteBot.new({
   url: 'https://raw.githubusercontent.com/MrFwibbles/VGQuotes/master/quotes.yml',
   schedule: [
-    '01:06am', # debug
-    '01:07am', # debug
+    # '02:36am', # debug
+    # '02:37am', # debug
     '10:00am',
     '04:00pm',
     '10:00pm',
