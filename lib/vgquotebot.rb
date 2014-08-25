@@ -27,6 +27,7 @@ class VGQuoteBot
 
     loop do
       clock.tick
+      GC.start
       sleep 60
     end
 
@@ -154,23 +155,25 @@ end
 # Our tweet mechanism
 # Uses chatterbot
 class TwitterClient
-  @@client = nil
-  # message should come in as a TweetMessage
   def initialize()
-    if @@client.nil?
-      create_client
-      puts "Created twitter client..."
-    end
+    TwitterClient.client
+    puts "Created twitter client..."
   end
 
+  # message should come in as a TweetMessage
   def tweet(message)
     message = message.to_s
     puts 'Tweeting: ' + message
-    @@client.update message 
+    # @@client.update message 
   end
 
-  def create_client
+  def self.client
+    if @client
+      return @client
+    end
+
     config_file = File.basename(__FILE__).sub('.rb', '.yml')
+
     if File.exists?('./lib/' + config_file)
       settings = YAML.load_file('./lib/' + config_file)
     else
@@ -181,13 +184,15 @@ class TwitterClient
         :access_token_secret => ENV['ACCESS_TOKEN_SECRET']
       }
     end
-    puts settings.inspect
-    @@client = Twitter::REST::Client.new do |config|
+
+    @client = Twitter::REST::Client.new do |config|
       config.consumer_key        = settings[:consumer_key]
       config.consumer_secret     = settings[:consumer_secret]
       config.access_token        = settings[:access_token]
       config.access_token_secret = settings[:access_token_secret]
     end
+
+    return @client
   end
 end
 
