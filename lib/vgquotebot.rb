@@ -2,7 +2,6 @@ require 'net/http'
 require 'uri'
 require 'twitter' # You know...for tweeting
 require 'yaml' # Used to parse the hosted yml
-# require 'open-uri' # Open URLs and read their contents.
 
 # Open our quotes.yml
 
@@ -18,7 +17,9 @@ class VGQuoteBot
     @app_config = {}
     @app_config = @app_config.merge(config)
     @filer = Filer.new @app_config[:url]
-    @processor = QuotesProcessor.new
+    @processor = 
+    @twitter = TwitterClient.new
+    @last_quote = nil
   end
 
   def main
@@ -31,31 +32,18 @@ class VGQuoteBot
 
   end
 
+  def get_quote
+    # @filer.get_contents
+    quotes = QuotesProcessor.new(@filer.get_contents).to_a
+    quote = QuoteSelector.new quotes, @last_quote
+    return quote.to_h
+  end
+
   def set_clock
     return Scheduler.new @app_config[:schedule] do |time|
       quote = get_quote
       tweet quote
     end
-  end
-
-  def test_loop
-    (1..3).each do 
-       quote = get_quote
-       tweet quote
-       sleep 60
-     end
-  end
-
-  def get_quote
-    # @filer.get_contents
-    @processor.process @filer.get_contents
-    quotes = @processor.get('quotes')
-    quote = QuoteSelector.new(quotes).quote
-    return quote
-  end
-
-  def tweet(quote)
-    Tweet.new quote
   end
 
   # Just run once and forego the scheduler.
@@ -64,6 +52,20 @@ class VGQuoteBot
     quote = get_quote()
     tweet quote
   end
+
+  def test_loop
+    (1..3).each do 
+       quote = get_quote
+       tweet quote
+       sleep 30
+     end
+  end
+
+  def tweet(quote)
+    @twitter.tweet Tweet.new quote
+    @last_quote = quote
+  end
+
 end
 
 # Responsible for dealing with files and such nonsense.
@@ -91,25 +93,39 @@ class QuotesProcessor
     @processor = YAML.load(content)
   end
 
-  def get(key)
-    return @processor[key]
+  def to_a
+    return @processor['quotes']
   end
 end
 
 # Responsible for selecting a quote and passing it forward
 
 class QuoteSelector
-  def initialize(quotes)
-    selectFrom(quotes)
+  def initialize(quotes, last_quote=nil)
+    if not last_quote.nil?
+      quotes = remove_last_quote quotes, last_quote
+    end
+
+    @quote = select_from(quotes, last_quote)
   end
 
-  def selectFrom(quotes)
+  def select_from(quotes, last_quote=nil)
     idx = Random.rand quotes.length
-    @selected_quote = quotes[idx]
+    return quotes[idx]
   end
 
-  def quote
-    return @selected_quote
+  def remove_last_quote(quotes, last_quote)
+    quotes.each_index do |i|
+      if quotes[i]['text'] == last_quote['text']
+        quotes.delete_at i
+        break
+      end
+    end
+    return quotes
+  end
+
+  def to_h
+    return @quote
   end
 end
 
@@ -137,15 +153,14 @@ end
 
 # Our tweet mechanism
 # Uses chatterbot
-class Tweet
+class TwitterClient
   @@client = nil
   # message should come in as a TweetMessage
-  def initialize(quote)
+  def initialize()
     if @@client.nil?
       create_client
       puts "Created client \n"
     end
-    tweet TweetMessage.new quote
   end
 
   def tweet(message)
@@ -167,7 +182,7 @@ class Tweet
 end
 
 # Represents the formatter to take our data and translate it into a tweet
-class TweetMessage
+class Tweet
   @@format = '"%s" - %s'
 
   def initialize(quote)
@@ -185,8 +200,8 @@ end
 bot = VGQuoteBot.new({
   url: 'https://raw.githubusercontent.com/MrFwibbles/VGQuotes/master/quotes.yml',
   schedule: [
-    '10:52pm', # debug
-    '10:53pm', # debug
+    '01:06am', # debug
+    '01:07am', # debug
     '10:00am',
     '04:00pm',
     '10:00pm',
