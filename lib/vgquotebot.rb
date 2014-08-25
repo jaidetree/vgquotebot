@@ -181,6 +181,7 @@ class TwitterClient
         :access_token_secret => ENV['ACCESS_TOKEN_SECRET']
       }
     end
+    puts settings.inspect
     @@client = Twitter::REST::Client.new do |config|
       config.consumer_key        = settings[:consumer_key]
       config.consumer_secret     = settings[:consumer_secret]
