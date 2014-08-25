@@ -17,13 +17,13 @@ class VGQuoteBot
     @app_config = {}
     @app_config = @app_config.merge(config)
     @filer = Filer.new @app_config[:url]
-    @processor = 
     @twitter = TwitterClient.new
     @last_quote = nil
   end
 
   def main
     clock = set_clock
+    puts 'Starting app...'
 
     loop do
       clock.tick
@@ -159,7 +159,7 @@ class TwitterClient
   def initialize()
     if @@client.nil?
       create_client
-      puts "Created client \n"
+      puts "Created twitter client..."
     end
   end
 
@@ -171,8 +171,8 @@ class TwitterClient
 
   def create_client
     config_file = File.basename(__FILE__).sub('.rb', '.yml')
-    if File.exists?('./' + config_file)
-      settings = YAML.load_file(config_file)
+    if File.exists?('./lib/' + config_file)
+      settings = YAML.load_file('./lib/' + config_file)
     else
       settings = {
         :consumer_secret => ENV['CONSUMER_SECRET'],

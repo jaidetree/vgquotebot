@@ -1,1 +1,1 @@
-clock: bundle exec ruby lib/vgquotebot.rb
+worker: bundle exec ruby lib/vgquotebot.rb
