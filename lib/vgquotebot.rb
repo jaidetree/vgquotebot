@@ -164,7 +164,7 @@ class TwitterClient
   def tweet(message)
     message = message.to_s
     puts 'Tweeting: ' + message
-    @@client.update message 
+    TwitterClient.client.update message 
   end
 
   def self.client
