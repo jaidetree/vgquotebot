@@ -217,9 +217,8 @@ bot = VGQuoteBot.new({
   schedule: [
     # '02:36am', # debug
     # '02:37am', # debug
-    '10:00am',
-    '04:00pm',
-    '10:00pm',
+    '12:00am',
+    '12:00pm',
   ]
 })
 
